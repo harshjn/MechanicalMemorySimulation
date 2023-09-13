@@ -77,7 +77,7 @@
             <MeshGmshLoader name="loader" filename="Surf.msh" />
             <MeshTopology src="@loader" />
             <MechanicalObject scale="8.5"  src="@loader" name="CollisModel" translation="0 00 0" rotation="0 0 90" />
-            <TriangleCollisionModel  selfCollision="1" />
+            <TriangleCollisionModel  selfCollision="0" />
             <LineCollisionModel    selfCollision="1" />
             <PointCollisionModel  selfCollision="1" />
             <BarycentricMapping input="@.." output="@." />
