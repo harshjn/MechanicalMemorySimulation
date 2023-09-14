@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<Node name="root" dt="0.02">
+<Node name="root" gravity="-0  0  0" dt="0.02">
     <RequiredPlugin name="Sofa.Component.Engine.Select"/> <!-- Needed to use components [BoxROI] -->
     <RequiredPlugin name="Sofa.Component.IO.Mesh"/> <!-- Needed to use components [MeshGmshLoader MeshOBJLoader SphereLoader] -->
     <RequiredPlugin name="Sofa.Component.LinearSolver.Iterative"/> <!-- Needed to use components [CGLinearSolver] -->
@@ -22,6 +22,12 @@
     <RequiredPlugin name="Sofa.Component.Topology.Container.Constant"/> <!-- Needed to use components [MeshTopology] -->
     <RequiredPlugin name="Sofa.Component.Visual"/> <!-- Needed to use components [VisualStyle] -->
     <RequiredPlugin name="Sofa.GL.Component.Rendering3D"/> <!-- Needed to use components [OglModel] -->
+  <RequiredPlugin name="Sofa.Component.MechanicalLoad"/> <!-- Needed to use components [TrianglePressureForceField] -->  
+  <RequiredPlugin name="Sofa.Component.Topology.Container.Dynamic"/> <!-- Needed to use components [TetrahedronSetGeometryAlgorithms,TetrahedronSetTopologyContainer,TetrahedronSetTopologyModifier,TriangleSetGeometryAlgorithms,TriangleSetTopologyContainer,TriangleSetTopologyModifier] -->  
+  <RequiredPlugin name="Sofa.Component.Topology.Mapping"/> <!-- Needed to use components [Tetra2TriangleTopologicalMapping] -->  
+
+
+
     <VisualStyle displayFlags="showCollisionModels" />
     <VisualStyle displayFlags="showVisual showBehaviorModels" />
      <LCPConstraintSolver maxIt="1000" tolerance="1e-6" initial_guess="false" build_lcp="true" multi_grid="false" printLog="0" mu="0.5"/>  <!-- Set friction for the contacts between objects and the floor -->
@@ -32,7 +38,7 @@
     <BruteForceBroadPhase/>
     <BVHNarrowPhase/>
     <LocalMinDistance name="Proximity" alarmDistance="0.3" contactDistance="0.1" useLMDFilters="0" />
-    <DefaultContactManager name="Response" response="FrictionContactConstraint" mu="0.5" />   <!-- Set friction for the contacts between objects -->
+    <DefaultContactManager name="Response" response="FrictionContactConstraint"  />   <!-- Set friction for the contacts between objects -->
 
 
 <Node>
@@ -51,7 +57,7 @@
         <TetrahedronSetTopologyModifier name="Modifier" />
 
         <UniformMass name="mass" vertexMass="0.05" />
-        <TetrahedronFEMForceField name="FEM" youngModulus="300000" poissonRatio="0.45" computeGlobalMatrix="false" method="large" />
+        <TetrahedronFEMForceField name="FEM" youngModulus="300000" poissonRatio="0.45" computeGlobalMatrix="true" method="large"  />
 	
         <BoxConstraint box="-30 -30 -30 60 0.1 10" drawBoxes="1"/>
 
@@ -83,6 +89,55 @@
             <BarycentricMapping input="@.." output="@." />
         </Node>
     </Node>
+
+
+
+
+    <Node name="Indentor">
+
+    <!-- Define the block's geometry. Adjust position for starting height. -->
+    <MeshTopology name="blockGrid" triangles=" " quads="0 1 2 3    4 5 6 7   0 6 4 1  2 7 5 3    1 3 5 4   0 2 7 6" position="3 6 0   3 6 1     3 7 0     3 7 1   9 6 1   9 7 1   9 6 0   9 7 0" />
+    <MechanicalObject template="Vec3d" name="blockMechanicalObject" />
+
+    <!-- Assign mass to the block to make it "heavy". -->
+    <UniformMass totalMass="1000" />
+
+    <!-- Define the collision model for the block. -->
+    <TriangleCollisionModel name="BlockCollisionModel" selfCollision="0" />
+    <LineCollisionModel selfCollision="0" />
+    <PointCollisionModel selfCollision="0" />
+
+    <!-- Visualization for the block. -->
+    <OglModel name="blockVisual" color="1 0 0" src="@blockGrid" />
+    <BarycentricMapping input="@blockMechanicalObject" output="@blockVisual" />
+
+    <!-- Define the block's movement. Here, it moves downward at a rate of -1 unit per simulation step. -->
+
+    <LinearMovementConstraint indices="0 1 2 3 4 5 6 7" keyTimes="0 10 20" movements="0 0 0   0 0 0   -15 0 0 " />
+</Node>
+        
+
+
+<!-- <MechanicalObject template="Rigid3" scale="1 1 1" dx="6.0" dy="6" dz="0.0" />
+        <UniformMass totalMass="1000000000.0" />
+        <UncoupledConstraintCorrection />
+	    <LinearMovementConstraint indices="0 1 2 3" keyTimes="0 1 2 " movements="0 6 0   0 5 0   0 4 0" />
+
+              <Node name="Visu">
+            <MeshOBJLoader name='myLoader0' filename='mesh/cube.obj'/>  
+            <OglModel name="Visual1" src='@myLoader1' color="1 1 0 1.0" />
+            <RigidMapping input="@.." output="@Visual1" />
+        </Node>
+        <Node name="ColliCube">
+            <MeshTopology filename="mesh/cube.obj" />
+            <MechanicalObject scale="1.0" />
+            <TriangleCollisionModel contactStiffness="0.1" />
+            <LineCollisionModel contactStiffness="0.1" />
+            <PointCollisionModel contactStiffness="0.1" />
+            <RigidMapping />
+		</Node>
+	</Node>
+-->
 
 
 </Node>
