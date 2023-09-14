@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<Node name="root" dt="0.02">
+    <RequiredPlugin name="Sofa.Component.Engine.Select"/> <!-- Needed to use components [BoxROI] -->
+    <RequiredPlugin name="Sofa.Component.IO.Mesh"/> <!-- Needed to use components [MeshGmshLoader MeshOBJLoader SphereLoader] -->
+    <RequiredPlugin name="Sofa.Component.LinearSolver.Iterative"/> <!-- Needed to use components [CGLinearSolver] -->
+    <RequiredPlugin name="Sofa.Component.Mapping.Linear"/> <!-- Needed to use components [BarycentricMapping] -->
+    <RequiredPlugin name="Sofa.Component.Mass"/> <!-- Needed to use components [UniformMass] -->
+    <RequiredPlugin name="Sofa.Component.ODESolver.Backward"/> <!-- Needed to use components [EulerImplicitSolver] -->
+    <RequiredPlugin name="Sofa.Component.SolidMechanics.FEM.Elastic"/> <!-- Needed to use components [TetrahedronFEMForceField] -->
+    <RequiredPlugin name="Sofa.Component.StateContainer"/> <!-- Needed to use components [MechanicalObject] -->
+    <RequiredPlugin name="Sofa.Component.AnimationLoop"/> <!-- Needed to use components [FreeMotionAnimationLoop] -->
+    <RequiredPlugin name="Sofa.Component.Collision.Detection.Algorithm"/> <!-- Needed to use components [BVHNarrowPhase BruteForceBroadPhase CollisionPipeline] -->
+    <RequiredPlugin name="Sofa.Component.Collision.Detection.Intersection"/> <!-- Needed to use components [LocalMinDistance] -->
+    <RequiredPlugin name="Sofa.Component.Collision.Geometry"/> <!-- Needed to use components [LineCollisionModel PointCollisionModel TriangleCollisionModel] -->
+    <RequiredPlugin name="Sofa.Component.Collision.Response.Contact"/> <!-- Needed to use components [DefaultContactManager] -->
+    <RequiredPlugin name="Sofa.Component.Constraint.Projective"/> <!-- Needed to use components [FixedConstraint FixedPlaneConstraint] -->
+    <RequiredPlugin name="Sofa.Component.Constraint.Lagrangian.Correction"/> <!-- Needed to use components [UncoupledConstraintCorrection] -->
+    <RequiredPlugin name="Sofa.Component.Constraint.Lagrangian.Solver"/> <!-- Needed to use components [LCPConstraintSolver] -->
+    <RequiredPlugin name="Sofa.Component.IO.Mesh"/> <!-- Needed to use components [MeshOBJLoader] -->
+    <RequiredPlugin name="Sofa.Component.LinearSolver.Iterative"/> <!-- Needed to use components [CGLinearSolver] -->
+    <RequiredPlugin name="Sofa.Component.Mapping.NonLinear"/> <!-- Needed to use components [RigidMapping] -->
+    <RequiredPlugin name="Sofa.Component.Topology.Container.Constant"/> <!-- Needed to use components [MeshTopology] -->
+    <RequiredPlugin name="Sofa.Component.Visual"/> <!-- Needed to use components [VisualStyle] -->
+    <RequiredPlugin name="Sofa.GL.Component.Rendering3D"/> <!-- Needed to use components [OglModel] -->
+  <RequiredPlugin name="Sofa.Component.MechanicalLoad"/> <!-- Needed to use components [TrianglePressureForceField] -->  
+  <RequiredPlugin name="Sofa.Component.Topology.Container.Dynamic"/> <!-- Needed to use components [TetrahedronSetGeometryAlgorithms,TetrahedronSetTopologyContainer,TetrahedronSetTopologyModifier,TriangleSetGeometryAlgorithms,TriangleSetTopologyContainer,TriangleSetTopologyModifier] -->  
+  <RequiredPlugin name="Sofa.Component.Topology.Mapping"/> <!-- Needed to use components [Tetra2TriangleTopologicalMapping] -->  
+
+
+
+    <VisualStyle displayFlags="showCollisionModels" />
+    <VisualStyle displayFlags="showVisual showBehaviorModels" />
+     <LCPConstraintSolver maxIt="1000" tolerance="1e-6" initial_guess="false" build_lcp="true" multi_grid="false" printLog="0" mu="0.5"/>  <!-- Set friction for the contacts between objects and the floor -->
+
+    <FreeMotionAnimationLoop />
+ 
+    <CollisionPipeline depth="35" draw="0" verbose="0" name="CollisionPipeline" />
+    <BruteForceBroadPhase/>
+    <BVHNarrowPhase/>
+    <LocalMinDistance name="Proximity" alarmDistance="0.3" contactDistance="0.1" useLMDFilters="0" />
+    <DefaultContactManager name="Response" response="FrictionContactConstraint"  />   <!-- Set friction for the contacts between objects -->
+
+
+<Node>
+        <EulerImplicitSolver name="cg_odesolver" printLog="false"  rayleighStiffness="0.1" rayleighMass="0.1" />
+        <CGLinearSolver iterations="25" name="linear solver" tolerance="1.0e-9" threshold="1.0e-9" />
+
+    <Node name="Liver">
+        <MeshGmshLoader name="loader" filename="Vol.msh" />
+        <MeshTopology src="@loader" />
+        <MechanicalObject src="@loader" translation="0 00 0" scale="4.25" rotation="0 0 0" template="Vec3" name="dofs" />
+            <UncoupledConstraintCorrection />
+
+
+		<TetrahedronSetTopologyContainer src="@loader" name="Container"/>
+        <TetrahedronSetGeometryAlgorithms template="Vec3d" name="GeomAlgo" />
+        <TetrahedronSetTopologyModifier name="Modifier" />
+
+        <UniformMass name="mass" vertexMass="0.05" />
+        <TetrahedronFEMForceField name="FEM" youngModulus="300000" poissonRatio="0.45" computeGlobalMatrix="true" method="large"  />
+	
+        <BoxConstraint box="-30 -30 -30 60 0.1 10" drawBoxes="1"/>
+
+	 <BoxROI box="-30 -30 -30 60 60 0.1" drawBoxes="1" name="ProjectToPlane"/> 
+	 <ProjectToPlaneConstraint normal = "0 0 1" indices="@[-1].indices" drawSize="0.3" drawBoxes="0"/> 
+
+      <Node 	name="Boundary Edges"  >
+            <TriangleSetTopologyContainer name="Container" />
+            <TriangleSetTopologyModifier name="Modifier" />
+            <TriangleSetGeometryAlgorithms template="Vec3" name="GeomAlgo"  drawTriangles="1" />
+            <Tetra2TriangleTopologicalMapping name="Mapping"  input="@../Container"  output="@Container" />
+
+            <BoxROI box="-30 26 -30    30 27 30" drawBoxes="1" position="@../mObject1.rest_position" drawTriangles="1" triangles="@Container.triangles" name="pressureBox" />
+            <TrianglePressureForceField template="Vec3" showForces="0" pressure="-100 -1000 0" triangleList="@pressureBox.triangleIndices"/>
+        </Node>
+
+	<Node name="Visu">
+            <MeshGmshLoader name="meshLoader_0" filename="Surf.msh" scale="4.25" rotation="0 0 00" translation="0 00 0" handleSeams="1" />
+            <OglModel name="VisualModel" src="@meshLoader_0" color="red" />
+            <BarycentricMapping input="@.." output="@VisualModel" name="visual mapping" />
+        </Node>
+         <Node name="Collis">
+            <MeshGmshLoader name="loader" filename="Surf.msh" />
+            <MeshTopology src="@loader" />
+            <MechanicalObject scale="4.25"  src="@loader" name="CollisModel" translation="0 00 0" rotation="0 0 0" />
+            <TriangleCollisionModel  selfCollision="0" />
+            <LineCollisionModel    selfCollision="1" />
+            <PointCollisionModel  selfCollision="1" />
+            <BarycentricMapping input="@.." output="@." />
+        </Node>
+    </Node>
+
+
+</Node>
+</Node>
