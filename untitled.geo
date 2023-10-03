@@ -59,3 +59,20 @@ Volume{23};
 Delete; }
 { Volume{24}; Delete; }
 
+Translate{3*d,0,0}{Duplicata {Volume{1};}}
+Translate{0,3*d-r,0}{Duplicata {Volume{1};}}
+Translate{3*d,3*d-r,0}{Duplicata {Volume{1};}}
+
+Box(5) = {-r, 6*d-r, 0, 6*d+r, 2*r, r}; //Seem at the top
+
+BooleanUnion{
+Volume{1};
+Volume{2};
+Volume{3};
+Volume{4};
+Delete;}
+{ Volume{5};Delete; }
+
+
+
+
