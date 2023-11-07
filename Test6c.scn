@@ -99,7 +99,7 @@
     <Node name="Indentor">
         <MeshGmshLoader name="loader" filename="IndVolLong.msh" />
         <MeshTopology src="@loader" />
-        <MechanicalObject src="@loader" translation="25 3 0" scale="1" rotation="0 0 0" template="Vec3" name="dofs" />
+        <MechanicalObject src="@loader" translation="27 3 -0.5" scale="1" rotation="0 0 0" template="Vec3" name="dofs" />
         <UncoupledConstraintCorrection useOdeSolverIntegrationFactors="0"/>
 
 		<TetrahedronSetTopologyContainer src="@loader" name="Container"/>
@@ -110,8 +110,8 @@
            <ParallelTetrahedronFEMForceField name="FEM" youngModulus="5000000" poissonRatio="0.49" computeGlobalMatrix="true" method="large"  />
 	
 
-	 <BoxROI box="25 0 -10 40 10 10" drawBoxes="0" name="LinearMovConst "/> 
-    <LinearMovementConstraint indices="@[-1].indices" keyTimes="0 8 12 16" movements="0 0 0 -00 0 0  -12 0 0   0 0 0 " />
+	 <BoxROI box="24 0 -10 40 10 10" drawBoxes="0" name="LinearMovConst "/> 
+    <LinearMovementConstraint indices="@[-1].indices" keyTimes="0 7 10 12" movements="0 0 0 -00 0 0  -10 0 0   0 0 0 " />
 
       <Node 	name="Boundary Edges"  >
             <TriangleSetTopologyContainer name="Container" />
@@ -123,14 +123,14 @@
         </Node>
 
 	<Node name="Visu">
-            <MeshGmshLoader name="meshLoader_0" filename="IndSurfLong.msh" scale="1" rotation="0 0 00" translation="25 3 0" handleSeams="1" />
+            <MeshGmshLoader name="meshLoader_0" filename="IndSurfLong.msh" scale="1" rotation="0 0 00" translation="27 3 -0.5" handleSeams="1" />
             <OglModel name="VisualModel" src="@meshLoader_0" color="red" />
             <BarycentricMapping input="@.." output="@VisualModel" name="visual mapping" />
         </Node>
          <Node name="Collis">
             <MeshGmshLoader name="loader" filename="IndSurfLong.msh" />
             <MeshTopology src="@loader" />
-            <MechanicalObject scale="1"  src="@loader" name="CollisModel" translation="25 3 0" rotation="0 0 0" />
+            <MechanicalObject scale="1"  src="@loader" name="CollisModel" translation="27 3 -0.5" rotation="0 0 0" />
             <TriangleCollisionModel  selfCollision="0" />
             <LineCollisionModel    selfCollision="1" />
             <PointCollisionModel  selfCollision="1" />
@@ -162,7 +162,7 @@
 
     <!-\- Define the block's movement. Here, it moves downward at a rate of -1 unit per simulation step. -\->
 
-    <LinearMovementConstraint indices="0 1 2 3 4 5 6 7" keyTimes="0 0.5 1 1.5 2 2.5 3 4.5 6 7.5 8" movements="0  0 0   0 -1 0   0 -2 0  -1 -3 0  -2 -4 0   -1 -5 0   0 -6 0  0 -9 0   0 -12 0  0 -15 0 0 -16 0" />
+    <LinearMovementConstraint indices="0 1 2 3 4 5 6 7" keyTimes="0 0.5 1 1.5 2 2.5 3 4.5 6 7.5  " movements="0  0 0   0 -1 0   0 -2 0  -0 -3 0  -0 -4 0   -0 -5 0   0 -6 0  0 -9 0   0 -12 0  0 -15 0        " />
 	</Node>
 
 
