@@ -1,1 +1,1 @@
-In this file, we look at a bigger mesh in 2d
+In this file, we look at the generation of mechanical memory in frictional contacts in a collapsed hexagonal mesh. The mesh is contained in the volume and surface mesh. These mesh files were generated via gmsh. 
