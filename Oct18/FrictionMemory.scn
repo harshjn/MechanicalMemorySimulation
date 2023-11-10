@@ -45,7 +45,7 @@
         <EulerImplicitSolver name="cg_odesolver" printLog="false"  rayleighStiffness="0.15" rayleighMass="0.15" />
         <CGLinearSolver iterations="25" name="linear solver" tolerance="1.0e-15" threshold="1.0e-15" />
 
-    <Node name="Liver">
+    <Node name="Sponge">
         <MeshGmshLoader name="loader" filename="Vol.msh" />
         <MeshTopology src="@loader" />
         <MechanicalObject src="@loader" translation="0 00 0" scale="3.5" rotation="0 0 0" template="Vec3" name="dofs" />
